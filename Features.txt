@@ -1,0 +1,23 @@
+Features/functions:
+
+☐ Ping Google around every 0.5 seconds unless bad ping. Record number of successful pings. 
+☐ If packet loss after a reasonable time then ping router, if connection to router good after 4 successive pings then ping Google again and repeat if packet loss still occuring. Record the time and date of every ping that result in packet loss to Google also record the time of the pings to the router. 
+☐ Have a adjustable min and mix packet size, also record this with the failed pings, reduced packet size if ping failed. 
+☐ Stop and start buttons as well as a manual ping button that will ping to Google once and then to the router once and record date/time, the ping time as well as the packet size. 
+☐ If there is a loss of connection to Google then make a noise(ask Suzannah if this is ok) 
+☐ Recording of information in a CSV file
+Set a max and min permisable input for the min and max packet sizes as well as not allowing characters
+
+Temp:
+ || reply.Status == IPStatus.DestinationUnreachable
+ 
+ 
+ 
+CSV format:
+ 
+Total succesful pings: value,
+Total failed pings: value,
+
+ping date and time, packet size, round trip time or lost packet,
+ping date and time, packet size, round trip time or lost packet,
+.........
