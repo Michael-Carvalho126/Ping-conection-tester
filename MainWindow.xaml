@@ -29,13 +29,20 @@
             <RowDefinition Height="10"/>
         </Grid.RowDefinitions>
         <!--Row 1-->
-        <TextBlock Grid.Column="1"
-                   Grid.Row="1"
-                   Grid.ColumnSpan="2"
-                   Text="Ping test program"
-                   HorizontalAlignment="Center"
-                   FontSize="32"
-                   FontWeight="Bold"/>
+        <StackPanel Grid.Column="1"
+                    Grid.Row="1"
+                    Grid.ColumnSpan="2"
+                    Orientation="Horizontal"
+                    HorizontalAlignment="Center">
+            <TextBlock Text="Ping test program"
+                       HorizontalAlignment="Center"
+                       FontSize="32"
+                       FontWeight="Bold"/>
+            <Button x:Name="close"
+                    HorizontalAlignment="Right"
+                    MinHeight="20"
+                    MinWidth="20"/>
+        </StackPanel>
         
         <!--Row 2-->
         <Button x:Name="startAuto"

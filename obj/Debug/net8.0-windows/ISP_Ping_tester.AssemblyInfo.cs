@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("ISP_Ping_tester")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+a575afe316e8e07165f1eb37f8487667f2f40ded")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+6f345e71ff5b5e0561ce651e667bd36b0e472546")]
 [assembly: System.Reflection.AssemblyProductAttribute("ISP_Ping_tester")]
 [assembly: System.Reflection.AssemblyTitleAttribute("ISP_Ping_tester")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

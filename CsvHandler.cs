@@ -3,6 +3,9 @@ using System.Collections.Generic;
 using System.Dynamic;
 using System.IO;
 using System.Linq;
+using System.Net.Mail;
+using System.Numerics;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
@@ -18,17 +21,17 @@ namespace ISP_Ping_tester
             //Vars:
             string totalPingLogsFileLocation = @"C:\Users\Tracks\source\repos\ISP_Ping_tester\TotalPingLogs.csv";
             string PingLogsFileLocation = @"C:\Users\Tracks\source\repos\ISP_Ping_tester\PingLogs.csv";
-            string[] totalPingLogs = new string[2];
+            string[] totalPingLogs = new string[3];
             string[] TotalPingsLine = new string[3];
             char[] delimiters = [':', ','];
-            int PingsInt = 0;
+            int pingsInt = 0;
 
             Directory.SetCurrentDirectory(@"C:\Users\Tracks\source\repos\ISP_Ping_tester"); //Not needed in the release!!!!!!!!!!
 
             //Setup log files if required:
             if (!File.Exists(totalPingLogsFileLocation))
             {
-                string initializePingLogs = "Total succesful pings: 0,\r\nTotal failed pings: 0,\r\nTotal successive pings: 0,\r\n";
+                string initializePingLogs = "Total succesful pings: 0,\r\nTotal single failed pings: 0,\r\nTotal successive pings: 0,";
                 
                 using (StreamWriter sw = File.CreateText(totalPingLogsFileLocation))
                 {
@@ -58,16 +61,9 @@ namespace ISP_Ping_tester
                 sessionPingArray[0] += 1;
                 if (sessionPingArray[0] == 20)
                 {
+                    // l = 0
                     // Update the toatal csv file with +100 successful pings.
-                    totalPingLogs = File.ReadAllLines(totalPingLogsFileLocation);
-
-                    TotalPingsLine = totalPingLogs[0].Split(delimiters);
-                    TotalPingsLine[1] = TotalPingsLine[1].Trim();
-                    PingsInt = Convert.ToInt32(TotalPingsLine[1]);
-                    PingsInt = PingsInt + 20;
-                    TotalPingsLine[1] = ": " + Convert.ToString(PingsInt) + ",";
-                    totalPingLogs[0] = TotalPingsLine[0] + TotalPingsLine[1] + TotalPingsLine[2];   //This might cause an issue having a [2] I am assuming that the \r\n is included in the string.
-                    File.WriteAllLines(totalPingLogsFileLocation,totalPingLogs);
+                    UpdateTotalPingLogsFile(totalPingLogsFileLocation, 0, 20);
 
                     // Update the PingLogs csv file with 1 more log.
                     CsvHandler.UpdatePingLogsFile(IpAddress, packetSize, roundTripTime, successfulPing);
@@ -86,16 +82,9 @@ namespace ISP_Ping_tester
                 sessionPingArray[1] += 1;
                 if (sessionPingArray[1] == 5)
                 {
+                    // l = 1
                     // Update the toatal csv file with +5 failed pings.
-                    totalPingLogs = File.ReadAllLines(totalPingLogsFileLocation);
-
-                    TotalPingsLine = totalPingLogs[1].Split(delimiters);
-                    TotalPingsLine[1] = TotalPingsLine[1].Trim();
-                    PingsInt = Convert.ToInt32(TotalPingsLine[1]);
-                    PingsInt = PingsInt + 5;
-                    TotalPingsLine[1] = ": " + Convert.ToString(PingsInt) + ",";
-                    totalPingLogs[1] = TotalPingsLine[0] + TotalPingsLine[1] + TotalPingsLine[2];   //This might cause an issue having a [2] I am assuming that the \r\n is included in the string.
-                    File.WriteAllLines(totalPingLogsFileLocation, totalPingLogs);
+                    UpdateTotalPingLogsFile(totalPingLogsFileLocation, 1, 5);
 
                     // Update the PingLogs csv file with 1 more log.
                     CsvHandler.UpdatePingLogsFile(IpAddress, packetSize, roundTripTime, successfulPing);
@@ -114,36 +103,17 @@ namespace ISP_Ping_tester
             else if (successfulPing == false && sessionPingArray[2] == 1)
             {
                 sessionPingArray[1] += 1;
-                
-                // Update the toatal csv file with +5 failed pings.
-                totalPingLogs = File.ReadAllLines(totalPingLogsFileLocation);
-
-                TotalPingsLine = totalPingLogs[2].Split(delimiters);
-                TotalPingsLine[1] = TotalPingsLine[1].Trim();
-                PingsInt = Convert.ToInt32(TotalPingsLine[1]);
-                PingsInt = PingsInt + 1;
-                TotalPingsLine[1] = ": " + Convert.ToString(PingsInt) + ",";
-                totalPingLogs[2] = TotalPingsLine[0] + TotalPingsLine[1] + TotalPingsLine[2];   //This might cause an issue having a [2] I am assuming that the \r\n is included in the string.
-                File.WriteAllLines(totalPingLogsFileLocation, totalPingLogs);
-
-                // Update the PingLogs csv file with 1 more log.
-                CsvHandler.UpdatePingLogsFile(IpAddress, packetSize, roundTripTime, successfulPing);
 
                 if (sessionPingArray[1] == 5)
                 {
+                    //L = 2
                     // Update the toatal csv file with +5 failed pings.
-                    totalPingLogs = File.ReadAllLines(totalPingLogsFileLocation);
-
-                    TotalPingsLine = totalPingLogs[1].Split(delimiters);
-                    TotalPingsLine[1] = TotalPingsLine[1].Trim();
-                    PingsInt = Convert.ToInt32(TotalPingsLine[1]);
-                    PingsInt = PingsInt + 5;
-                    TotalPingsLine[1] = ": " + Convert.ToString(PingsInt) + ",";
-                    totalPingLogs[1] = TotalPingsLine[0] + TotalPingsLine[1] + TotalPingsLine[2];   //This might cause an issue having a [2] I am assuming that the \r\n is included in the string.
-                    File.WriteAllLines(totalPingLogsFileLocation, totalPingLogs);
+                    UpdateTotalPingLogsFile(totalPingLogsFileLocation, 2 , 5);
 
                     sessionPingArray[1] = 0;
                 }
+
+                UpdatePingLogsFile(IpAddress, packetSize, roundTripTime, successfulPing);
             }
 
                 return sessionPingArray;
@@ -157,6 +127,25 @@ namespace ISP_Ping_tester
             string updateLineText = dateTime.ToString() + " , " + "IP: " + IpAddress + " , " + "Packet size: " + packetSize.ToString() + " , " + "Round trip time: " + roundTripTime + " , " + "Successful ping: " + successfulPing.ToString() + "\r\n";
 
             File.AppendAllText(PingLogsFileLocation, updateLineText);
+        }
+
+        public static void UpdateTotalPingLogsFile(string totalPingLogsFileLocation, int lineToEdit, int pingCount)
+        {
+            //Vars:
+            string[] totalPingLogs = new string[3];
+            string[] TotalPingsLine = new string[3];
+            char[] delimiters = [':', ','];
+            int pingsInt = 0;
+
+
+            totalPingLogs = File.ReadAllLines(totalPingLogsFileLocation);
+
+            TotalPingsLine = totalPingLogs[lineToEdit].Split(delimiters);
+            TotalPingsLine[1] = TotalPingsLine[1].Trim();
+            pingsInt = Convert.ToInt32(TotalPingsLine[1]);
+            pingsInt = pingsInt + pingCount;
+            TotalPingsLine[1] = ": " + Convert.ToString(pingsInt) + ",";
+            totalPingLogs[lineToEdit] = TotalPingsLine[0] + TotalPingsLine[1] + TotalPingsLine[2];
         }
     }
 }
