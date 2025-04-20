@@ -9,6 +9,7 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Media;
 using System.Windows.Media.Media3D;
 
 namespace ISP_Ping_tester
@@ -75,10 +76,13 @@ namespace ISP_Ping_tester
                     CsvHandler.UpdatePingLogsFile(IpAddress, packetSize, roundTripTime, successfulPing);
                 }
                 sessionPingArray[3] = 0; // Bool for successive pings
+                sessionPingArray[4] = 0;
+                sessionPingArray[5] = 0;
             }
             else if (successfulPing == false  && sessionPingArray[3] == 0)
             {
                 sessionPingArray[1] += 1;
+                
                 if (sessionPingArray[1] == 5)
                 {
                     // l = 1
@@ -97,6 +101,8 @@ namespace ISP_Ping_tester
                     CsvHandler.UpdatePingLogsFile(IpAddress, packetSize, roundTripTime, successfulPing);
                 }
                 sessionPingArray[3] = 1; // Bool for successive pings
+                sessionPingArray[4] = 0;
+                sessionPingArray[5] = 1;
             }
             else if (successfulPing == false && sessionPingArray[3] == 1)
             {
@@ -112,6 +118,8 @@ namespace ISP_Ping_tester
                 }
 
                 UpdatePingLogsFile(IpAddress, packetSize, roundTripTime, successfulPing);
+                sessionPingArray[4] = 1;
+                sessionPingArray[5] = 1;
             }
 
                 return sessionPingArray;
