@@ -24,7 +24,6 @@ namespace ISP_Ping_tester
             string[] totalPingLogs = new string[3];
             string[] TotalPingsLine = new string[3];
             char[] delimiters = [':', ','];
-            int pingsInt = 0;
 
             Directory.SetCurrentDirectory(@"C:\Users\Tracks\source\repos\ISP_Ping_tester"); //Not needed in the release!!!!!!!!!!
 
@@ -69,15 +68,15 @@ namespace ISP_Ping_tester
                     CsvHandler.UpdatePingLogsFile(IpAddress, packetSize, roundTripTime, successfulPing);
 
                     sessionPingArray[0] = 0;
-                    sessionPingArray[2] = 0;
+                    
                 }
                 else if (sessionPingArray[0] < 20)
                 {
                     CsvHandler.UpdatePingLogsFile(IpAddress, packetSize, roundTripTime, successfulPing);
-                    sessionPingArray[2] = 0;
                 }
+                sessionPingArray[3] = 0; // Bool for successive pings
             }
-            else if (successfulPing == false  && sessionPingArray[2] == 0)
+            else if (successfulPing == false  && sessionPingArray[3] == 0)
             {
                 sessionPingArray[1] += 1;
                 if (sessionPingArray[1] == 5)
@@ -90,27 +89,26 @@ namespace ISP_Ping_tester
                     CsvHandler.UpdatePingLogsFile(IpAddress, packetSize, roundTripTime, successfulPing);
 
                     sessionPingArray[1] = 0;
-                    sessionPingArray[2] = 1;
                 }
                 else if (sessionPingArray[1] < 5)
                 {
                     roundTripTime = "N/A";
 
                     CsvHandler.UpdatePingLogsFile(IpAddress, packetSize, roundTripTime, successfulPing);
-                    sessionPingArray[2] = 1;
                 }
+                sessionPingArray[3] = 1; // Bool for successive pings
             }
-            else if (successfulPing == false && sessionPingArray[2] == 1)
+            else if (successfulPing == false && sessionPingArray[3] == 1)
             {
-                sessionPingArray[1] += 1;
+                sessionPingArray[2] += 1;
 
-                if (sessionPingArray[1] == 5)
+                if (sessionPingArray[2] == 5)
                 {
                     //L = 2
                     // Update the toatal csv file with +5 failed pings.
                     UpdateTotalPingLogsFile(totalPingLogsFileLocation, 2 , 5);
 
-                    sessionPingArray[1] = 0;
+                    sessionPingArray[2] = 0;
                 }
 
                 UpdatePingLogsFile(IpAddress, packetSize, roundTripTime, successfulPing);
@@ -146,6 +144,8 @@ namespace ISP_Ping_tester
             pingsInt = pingsInt + pingCount;
             TotalPingsLine[1] = ": " + Convert.ToString(pingsInt) + ",";
             totalPingLogs[lineToEdit] = TotalPingsLine[0] + TotalPingsLine[1] + TotalPingsLine[2];
+
+            File.WriteAllLines(totalPingLogsFileLocation, totalPingLogs);
         }
     }
 }
