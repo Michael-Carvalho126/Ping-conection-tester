@@ -13,6 +13,7 @@ using System.Net;
 using System;
 using System.Runtime.InteropServices;
 using System.Windows.Interop;
+using System.IO;
 
 namespace ISP_Ping_tester
 {
@@ -28,6 +29,7 @@ namespace ISP_Ping_tester
         int remainderSuccessiveFailedPings = 0;
         int[] sessionPingArray = new int[6];    //sessionPingArray [0] == Sucessful, [1] == Failed, [2] == amount successive failed [3] == successivePing either 0 for false or 1 for true, [4] == This is for the state of the connection to work, [5] == successful ping
         string totalPingLogsFileLocation = @"C:\Users\Tracks\source\repos\ISP_Ping_tester\TotalPingLogs.csv";
+        
         private const int HTLEFT = 10;
         private const int HTRIGHT = 11;
         private const int HTTOP = 12;
@@ -141,7 +143,6 @@ namespace ISP_Ping_tester
                             //infoTextBox.Text += "Don't fragment: " + reply.Options.DontFragment + "\n";
                             infoTextBox.Text += "Buffer size: " + reply.Buffer.Length + "\n--End--\n";
                             sessionPingArray = CsvHandler.UpdateCSVPingInformation(reply.Address.ToString(), reply.Buffer.Length, reply.RoundtripTime.ToString(), true, sessionPingArray);
-                            currentStateOfConnectionTextBox.Background = Brushes.Green;
                             Thread.Sleep(Convert.ToInt32(reply.RoundtripTime) + 80);
                         }
                         else if (reply.Status == IPStatus.DestinationHostUnreachable)
@@ -168,8 +169,6 @@ namespace ISP_Ping_tester
             {
                 MessageBox.Show("Please enter a number in the repeat text box.");
             }
-
-            
         }
 
         private void startAuto_Click(object sender, RoutedEventArgs e)
@@ -178,67 +177,88 @@ namespace ISP_Ping_tester
 
             Thread startAutoThread = new Thread(() =>
             {
-            while (startStop)
-            {
-                string ipAddress = "www.google.co.uk";
-                //string ipAddress = "192.168.1.1";
-                //string ipAddress = "uk.yahoo.com";
-                Ping pingSender = new Ping();
-                PingOptions options = new PingOptions();
-
-                options.DontFragment = true;
-
-                //Create a buffer of 32 bytes of data to be transmitted.
-                //Will adjust in future to be auto generated to the size
-                //of the packet size in the packet size text boxes
-                string data = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
-                byte[] buffer = Encoding.ASCII.GetBytes(data);
-                int timeout = 250; // Will also change to get value from a textbox
-                PingReply reply = pingSender.Send(ipAddress, timeout, buffer, options);
-
-                if (reply.Status == IPStatus.Success)
+                while (startStop)
                 {
-                        Application.Current.Dispatcher.BeginInvoke(() => currentStateOfConnectionTextBox.Background = Brushes.Green);
-                        Application.Current.Dispatcher.BeginInvoke(() => infoTextBox.AppendText("Address: " + reply.Address.ToString() + "\n"));
-                        Application.Current.Dispatcher.BeginInvoke(() => infoTextBox.AppendText("Roundtrip time: " + reply.RoundtripTime.ToString() + " ms\n"));
-                        //Application.Current.Dispatcher.BeginInvoke(() => infoTextBox.AppendText("Time to live: " + reply.Options.Ttl + " ms\n"));
-                        //infoTextBox.Text += "Don't fragment: " + reply.Options.DontFragment + "\n";
-                        Application.Current.Dispatcher.BeginInvoke(() => infoTextBox.AppendText("Buffer size: " + reply.Buffer.Length + "\n--End--\n"));
-                        Application.Current.Dispatcher.BeginInvoke(() => infoTextBox.Focus());
-                        Application.Current.Dispatcher.BeginInvoke(() => infoTextBox.CaretIndex = infoTextBox.Text.Length);
-                        Application.Current.Dispatcher.BeginInvoke(() => infoTextBox.ScrollToEnd());
-                        sessionPingArray = CsvHandler.UpdateCSVPingInformation(reply.Address.ToString(), reply.Buffer.Length, reply.RoundtripTime.ToString(), true, sessionPingArray);
-                }
-                else if (reply.Status == IPStatus.DestinationHostUnreachable)
-                {
-                        Application.Current.Dispatcher.BeginInvoke(() => infoTextBox.AppendText("Destination host " + ipAddress + " unreachable" + "\n--End--\n"));
-                        sessionPingArray = CsvHandler.UpdateCSVPingInformation(reply.Address.ToString(), reply.Buffer.Length, reply.RoundtripTime.ToString(), false, sessionPingArray);
-                        if (sessionPingArray[4] == 0 && sessionPingArray[5] == 1)
+                    string ipAddress = "www.google.co.uk";
+                    //string ipAddress = "192.168.1.1";
+                    //string ipAddress = "uk.yahoo.com";
+                    Ping pingSender = new Ping();
+                    PingOptions options = new PingOptions();
+                    string PingLogsFileLocation = @"C:\Users\Tracks\source\repos\ISP_Ping_tester\PingLogs.csv";
+
+
+                    Application.Current.Dispatcher.BeginInvoke(() => currentStateOfProgramTextBox.Background = Brushes.Green);
+                    options.DontFragment = true;
+
+                    //Create a buffer of 32 bytes of data to be transmitted.
+                    //Will adjust in future to be auto generated to the size
+                    //of the packet size in the packet size text boxes
+                    string data = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
+                    byte[] buffer = Encoding.ASCII.GetBytes(data);
+                    int timeout = 250; // Will also change to get value from a textbox
+                    try
+                    {
+                        PingReply reply = pingSender.Send(ipAddress, timeout, buffer, options);
+
+                        if (reply.Status == IPStatus.Success)
                         {
-                            Application.Current.Dispatcher.BeginInvoke(() => currentStateOfConnectionTextBox.Background = Brushes.OrangeRed);
+                            Application.Current.Dispatcher.BeginInvoke(() => currentStateOfConnectionTextBox.Background = Brushes.Green);
+                            Application.Current.Dispatcher.BeginInvoke(() => infoTextBox.AppendText("Address: " + reply.Address.ToString() + "\n"));
+                            Application.Current.Dispatcher.BeginInvoke(() => infoTextBox.AppendText("Roundtrip time: " + reply.RoundtripTime.ToString() + " ms\n"));
+                            //Application.Current.Dispatcher.BeginInvoke(() => infoTextBox.AppendText("Time to live: " + reply.Options.Ttl + " ms\n"));
+                            //infoTextBox.Text += "Don't fragment: " + reply.Options.DontFragment + "\n";
+                            Application.Current.Dispatcher.BeginInvoke(() => infoTextBox.AppendText("Buffer size: " + reply.Buffer.Length + "\n--End--\n"));
+                            Application.Current.Dispatcher.BeginInvoke(() => infoTextBox.Focus());
+                            Application.Current.Dispatcher.BeginInvoke(() => infoTextBox.CaretIndex = infoTextBox.Text.Length);
+                            Application.Current.Dispatcher.BeginInvoke(() => infoTextBox.ScrollToEnd());
+                            sessionPingArray = CsvHandler.UpdateCSVPingInformation(reply.Address.ToString(), reply.Buffer.Length, reply.RoundtripTime.ToString(), true, sessionPingArray);
                         }
-                        else if (sessionPingArray[4] == 1 && sessionPingArray[5] == 1)
+                        else if (reply.Status == IPStatus.DestinationHostUnreachable)
                         {
-                            Application.Current.Dispatcher.BeginInvoke(() => currentStateOfConnectionTextBox.Background = Brushes.Red);
+                            Application.Current.Dispatcher.BeginInvoke(() => infoTextBox.AppendText("Destination host " + ipAddress + " unreachable" + "\n--End--\n"));
+                            sessionPingArray = CsvHandler.UpdateCSVPingInformation(reply.Address.ToString(), reply.Buffer.Length, reply.RoundtripTime.ToString(), false, sessionPingArray);
+                            if (sessionPingArray[4] == 0 && sessionPingArray[5] == 1)
+                            {
+                                Application.Current.Dispatcher.BeginInvoke(() => currentStateOfConnectionTextBox.Background = Brushes.OrangeRed);
+                            }
+                            else if (sessionPingArray[4] == 1 && sessionPingArray[5] == 1)
+                            {
+                                Application.Current.Dispatcher.BeginInvoke(() => currentStateOfConnectionTextBox.Background = Brushes.Red);
+                            }
                         }
-                }
-                else if (reply.Status == IPStatus.TimedOut)
-                {
-                        Application.Current.Dispatcher.BeginInvoke(() => infoTextBox.AppendText("Ping round trip time exceeded the " + timeout.ToString() + " ms\n--End--\n"));
-                        sessionPingArray = CsvHandler.UpdateCSVPingInformation(reply.Address.ToString(), reply.Buffer.Length, reply.RoundtripTime.ToString(), false, sessionPingArray);
-                        if (sessionPingArray[4] == 0 && sessionPingArray[5] == 1)
+                        else if (reply.Status == IPStatus.TimedOut)
                         {
-                            Application.Current.Dispatcher.BeginInvoke(() => currentStateOfConnectionTextBox.Background = Brushes.OrangeRed);
+                            Application.Current.Dispatcher.BeginInvoke(() => infoTextBox.AppendText("Ping round trip time exceeded the " + timeout.ToString() + " ms\n--End--\n"));
+                            sessionPingArray = CsvHandler.UpdateCSVPingInformation(reply.Address.ToString(), reply.Buffer.Length, reply.RoundtripTime.ToString(), false, sessionPingArray);
+                            if (sessionPingArray[4] == 0 && sessionPingArray[5] == 1)
+                            {
+                                Application.Current.Dispatcher.BeginInvoke(() => currentStateOfConnectionTextBox.Background = Brushes.OrangeRed);
+                            }
+                            else if (sessionPingArray[4] == 1 && sessionPingArray[5] == 1)
+                            {
+                                Application.Current.Dispatcher.BeginInvoke(() => currentStateOfConnectionTextBox.Background = Brushes.Red);
+                            }
                         }
-                        else if (sessionPingArray[4] == 1 && sessionPingArray[5] == 1)
+                        else if (reply.Status == IPStatus.HardwareError)
                         {
-                            Application.Current.Dispatcher.BeginInvoke(() => currentStateOfConnectionTextBox.Background = Brushes.Red);
+                            MessageBox.Show("Broken");
                         }
+
+                        Thread.Sleep(1000);
+                    }
+                    catch (System.Net.NetworkInformation.PingException)
+                    {
+                        Console.Beep(200, 2000);
+                        MessageBox.Show("There is a issue with the ethernet");
+                        File.AppendAllText(PingLogsFileLocation, "There was a issue with the ethernet connection.\r\n");
+                        startStop = false;
                     }
 
-                    Thread.Sleep(1000);
+
+
+                }   
+
                 }
-            }
             );
             startAutoThread.Start();
             
@@ -247,6 +267,8 @@ namespace ISP_Ping_tester
         private void stopAuto_Click(object sender, RoutedEventArgs e)
         {
             startStop = false;
+            Application.Current.Dispatcher.BeginInvoke(() => currentStateOfProgramTextBox.Background = Brushes.Red);
+            Application.Current.Dispatcher.BeginInvoke(() => currentStateOfConnectionTextBox.Background = Brushes.Gray);
         }
 
         private void close_Click(object sender, RoutedEventArgs e)
