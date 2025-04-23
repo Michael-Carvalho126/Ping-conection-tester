@@ -20,7 +20,13 @@ namespace ISP_Ping_tester
         {
             //sessionPingArray [0] == Sucessful [1] == Failed
             //Vars:
-            string totalPingLogsFileLocation = @"C:\Users\Tracks\source\repos\ISP_Ping_tester\TotalPingLogs.csv";
+            char[] todayDelimiters = ['/', ' '];
+            string[] todayArray = new string[4];
+            string today = DateTime.Now.Date.ToString();
+            todayArray = today.Split(todayDelimiters);
+            today = todayArray[0] + "_" + todayArray[1] + "_" + todayArray[2];
+
+            string totalPingLogsFileLocation = @"C:\Users\Tracks\source\repos\ISP_Ping_tester\TotalPingLogs_" + today + ".csv";
             string PingLogsFileLocation = @"C:\Users\Tracks\source\repos\ISP_Ping_tester\PingLogs.csv";
             string[] totalPingLogs = new string[3];
             string[] TotalPingsLine = new string[3];
@@ -155,5 +161,6 @@ namespace ISP_Ping_tester
 
             File.WriteAllLines(totalPingLogsFileLocation, totalPingLogs);
         }
+
     }
 }
