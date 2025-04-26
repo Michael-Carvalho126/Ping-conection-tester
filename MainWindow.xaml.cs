@@ -120,12 +120,6 @@ namespace ISP_Ping_tester
                 if (manualPingAddress.Text != "")
                 {
                     //Vars:
-                    /*char[] todayDelimiters = ['/', ' '];
-                    string[] todayArray = new string[4];
-                    string today = DateTime.Now.Date.ToString();
-                    todayArray = today.Split(todayDelimiters);
-                    today = todayArray[0] + "_" + todayArray[1] + "_" + todayArray[2];*/
-
                     string[] pingFilesArray = new string[2];
                     pingFilesArray = PingFilesNamesWithTime();
                     string totalPingLogsFileLocation = pingFilesArray[0];
@@ -205,6 +199,7 @@ namespace ISP_Ping_tester
                     string ipAddress = "www.google.co.uk";
                     //string ipAddress = "192.168.1.1";
                     //string ipAddress = "uk.yahoo.com";
+                    string routerIpAddress = "192.168.1.1";
                     Ping pingSender = new Ping();
                     PingOptions options = new PingOptions();
                     Application.Current.Dispatcher.BeginInvoke(() => currentStateOfProgramTextBox.Background = Brushes.Green);
@@ -247,6 +242,35 @@ namespace ISP_Ping_tester
                             else if (sessionPingArray[4] == 1 && sessionPingArray[5] == 1)
                             {
                                 Application.Current.Dispatcher.BeginInvoke(() => currentStateOfConnectionTextBox.Background = Brushes.Red);
+                            }
+                            //Ping router after failed ping to Google:
+                            reply = pingSender.Send(routerIpAddress, timeout, buffer, options);
+                            if (reply.Status == IPStatus.Success)
+                            {
+                                Application.Current.Dispatcher.BeginInvoke(() => currentStateOfConnectionTextBox.Background = Brushes.Green);
+                                Application.Current.Dispatcher.BeginInvoke(() => infoTextBox.AppendText("Address: " + reply.Address.ToString() + " Router after failed ping to Google.\n"));
+                                Application.Current.Dispatcher.BeginInvoke(() => infoTextBox.AppendText("Roundtrip time: " + reply.RoundtripTime.ToString() + " ms\n"));
+                                Application.Current.Dispatcher.BeginInvoke(() => infoTextBox.AppendText("Buffer size: " + reply.Buffer.Length + "\n--End--\n"));
+                                Application.Current.Dispatcher.BeginInvoke(() => infoTextBox.Focus());
+                                Application.Current.Dispatcher.BeginInvoke(() => infoTextBox.CaretIndex = infoTextBox.Text.Length);
+                                Application.Current.Dispatcher.BeginInvoke(() => infoTextBox.ScrollToEnd());
+                                sessionPingArray = CsvHandler.UpdateCSVPingInformation(totalPingLogsFileLocation, PingLogsFileLocation, reply.Address.ToString(), reply.Buffer.Length, reply.RoundtripTime.ToString(), true, sessionPingArray);
+                            }
+                            else if (reply.Status == IPStatus.DestinationHostUnreachable)
+                            {
+                                Application.Current.Dispatcher.BeginInvoke(() => infoTextBox.AppendText("Destination host " + ipAddress + " unreachable to Router after failed ping to Google." + "\n--End--\n"));
+                                Application.Current.Dispatcher.BeginInvoke(() => infoTextBox.Focus());
+                                Application.Current.Dispatcher.BeginInvoke(() => infoTextBox.CaretIndex = infoTextBox.Text.Length);
+                                Application.Current.Dispatcher.BeginInvoke(() => infoTextBox.ScrollToEnd());
+                                sessionPingArray = CsvHandler.UpdateCSVPingInformation(totalPingLogsFileLocation, PingLogsFileLocation, reply.Address.ToString(), reply.Buffer.Length, reply.RoundtripTime.ToString(), false, sessionPingArray);
+                                if (sessionPingArray[4] == 0 && sessionPingArray[5] == 1)
+                                {
+                                    Application.Current.Dispatcher.BeginInvoke(() => currentStateOfConnectionTextBox.Background = Brushes.OrangeRed);
+                                }
+                                else if (sessionPingArray[4] == 1 && sessionPingArray[5] == 1)
+                                {
+                                    Application.Current.Dispatcher.BeginInvoke(() => currentStateOfConnectionTextBox.Background = Brushes.Red);
+                                }
                             }
                         }
                         else if (reply.Status == IPStatus.TimedOut)
