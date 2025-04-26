@@ -28,8 +28,13 @@ namespace ISP_Ping_tester
         int remainderFailedPings = 0;
         int remainderSuccessiveFailedPings = 0;
         int[] sessionPingArray = new int[6];    //sessionPingArray [0] == Sucessful, [1] == Failed, [2] == amount successive failed [3] == successivePing either 0 for false or 1 for true, [4] == This is for the state of the connection to work, [5] == successful ping
-        string totalPingLogsFileLocation = @"C:\Users\Tracks\source\repos\ISP_Ping_tester\TotalPingLogs.csv";
+        //string totalPingLogsFileLocation = @"C:\Users\Tracks\source\repos\ISP_Ping_tester\TotalPingLogs.csv";
+
         
+
+
+
+
         private const int HTLEFT = 10;
         private const int HTRIGHT = 11;
         private const int HTTOP = 12;
@@ -47,10 +52,9 @@ namespace ISP_Ping_tester
             InitializeComponent();
         }
 
-
-
         protected override void OnSourceInitialized(EventArgs e)
         {
+            
             base.OnSourceInitialized(e);
             var handle = (new WindowInteropHelper(this)).Handle;
             HwndSource.FromHwnd(handle)?.AddHook(WindowProc);
@@ -115,6 +119,19 @@ namespace ISP_Ping_tester
             {
                 if (manualPingAddress.Text != "")
                 {
+                    //Vars:
+                    /*char[] todayDelimiters = ['/', ' '];
+                    string[] todayArray = new string[4];
+                    string today = DateTime.Now.Date.ToString();
+                    todayArray = today.Split(todayDelimiters);
+                    today = todayArray[0] + "_" + todayArray[1] + "_" + todayArray[2];*/
+
+                    string[] pingFilesArray = new string[2];
+                    pingFilesArray = PingFilesNamesWithTime();
+                    string totalPingLogsFileLocation = pingFilesArray[0];
+                    string PingLogsFileLocation = pingFilesArray[1];
+
+
                     string ipAddress = manualPingAddress.Text;
                     Ping pingSender = new Ping();
                     PingOptions options = new PingOptions();
@@ -142,19 +159,19 @@ namespace ISP_Ping_tester
                             //infoTextBox.Text += $"Time to live: {reply.Options.Ttl}\n";
                             //infoTextBox.Text += "Don't fragment: " + reply.Options.DontFragment + "\n";
                             infoTextBox.Text += "Buffer size: " + reply.Buffer.Length + "\n--End--\n";
-                            sessionPingArray = CsvHandler.UpdateCSVPingInformation(reply.Address.ToString(), reply.Buffer.Length, reply.RoundtripTime.ToString(), true, sessionPingArray);
+                            sessionPingArray = CsvHandler.UpdateCSVPingInformation(totalPingLogsFileLocation, PingLogsFileLocation,reply.Address.ToString(), reply.Buffer.Length, reply.RoundtripTime.ToString(), true, sessionPingArray);
                             Thread.Sleep(Convert.ToInt32(reply.RoundtripTime) + 80);
                         }
                         else if (reply.Status == IPStatus.DestinationHostUnreachable)
                         {
                             infoTextBox.Text += "Destination host " + ipAddress + " unreachable" + "\n--End--\n";
-                            sessionPingArray = CsvHandler.UpdateCSVPingInformation(reply.Address.ToString(), reply.Buffer.Length, reply.RoundtripTime.ToString(), false, sessionPingArray);
+                            sessionPingArray = CsvHandler.UpdateCSVPingInformation(totalPingLogsFileLocation, PingLogsFileLocation,reply.Address.ToString(), reply.Buffer.Length, reply.RoundtripTime.ToString(), false, sessionPingArray);
                             Thread.Sleep(250);
                         }
                         else if (reply.Status == IPStatus.TimedOut)
                         {
                             infoTextBox.Text += "Ping round trip time exceeded the " + timeout.ToString() + " ms\n--End--\n";
-                            sessionPingArray = CsvHandler.UpdateCSVPingInformation(reply.Address.ToString(), reply.Buffer.Length, reply.RoundtripTime.ToString(), false, sessionPingArray);
+                            sessionPingArray = CsvHandler.UpdateCSVPingInformation(totalPingLogsFileLocation, PingLogsFileLocation ,reply.Address.ToString(), reply.Buffer.Length, reply.RoundtripTime.ToString(), false, sessionPingArray);
                             Thread.Sleep(250);
                         }
                         
@@ -179,14 +196,17 @@ namespace ISP_Ping_tester
             {
                 while (startStop)
                 {
+                    //Vars:
+                    string[] pingFilesArray = new string[2];
+                    pingFilesArray = PingFilesNamesWithTime();
+                    string totalPingLogsFileLocation = pingFilesArray[0];
+                    string PingLogsFileLocation = pingFilesArray[1];
+
                     string ipAddress = "www.google.co.uk";
                     //string ipAddress = "192.168.1.1";
                     //string ipAddress = "uk.yahoo.com";
                     Ping pingSender = new Ping();
                     PingOptions options = new PingOptions();
-                    string PingLogsFileLocation = @"C:\Users\Tracks\source\repos\ISP_Ping_tester\PingLogs.csv";
-
-
                     Application.Current.Dispatcher.BeginInvoke(() => currentStateOfProgramTextBox.Background = Brushes.Green);
                     options.DontFragment = true;
 
@@ -211,12 +231,15 @@ namespace ISP_Ping_tester
                             Application.Current.Dispatcher.BeginInvoke(() => infoTextBox.Focus());
                             Application.Current.Dispatcher.BeginInvoke(() => infoTextBox.CaretIndex = infoTextBox.Text.Length);
                             Application.Current.Dispatcher.BeginInvoke(() => infoTextBox.ScrollToEnd());
-                            sessionPingArray = CsvHandler.UpdateCSVPingInformation(reply.Address.ToString(), reply.Buffer.Length, reply.RoundtripTime.ToString(), true, sessionPingArray);
+                            sessionPingArray = CsvHandler.UpdateCSVPingInformation(totalPingLogsFileLocation, PingLogsFileLocation, reply.Address.ToString(), reply.Buffer.Length, reply.RoundtripTime.ToString(), true, sessionPingArray);
                         }
                         else if (reply.Status == IPStatus.DestinationHostUnreachable)
                         {
                             Application.Current.Dispatcher.BeginInvoke(() => infoTextBox.AppendText("Destination host " + ipAddress + " unreachable" + "\n--End--\n"));
-                            sessionPingArray = CsvHandler.UpdateCSVPingInformation(reply.Address.ToString(), reply.Buffer.Length, reply.RoundtripTime.ToString(), false, sessionPingArray);
+                            Application.Current.Dispatcher.BeginInvoke(() => infoTextBox.Focus());
+                            Application.Current.Dispatcher.BeginInvoke(() => infoTextBox.CaretIndex = infoTextBox.Text.Length);
+                            Application.Current.Dispatcher.BeginInvoke(() => infoTextBox.ScrollToEnd());
+                            sessionPingArray = CsvHandler.UpdateCSVPingInformation(totalPingLogsFileLocation, PingLogsFileLocation, reply.Address.ToString(), reply.Buffer.Length, reply.RoundtripTime.ToString(), false, sessionPingArray);
                             if (sessionPingArray[4] == 0 && sessionPingArray[5] == 1)
                             {
                                 Application.Current.Dispatcher.BeginInvoke(() => currentStateOfConnectionTextBox.Background = Brushes.OrangeRed);
@@ -229,7 +252,10 @@ namespace ISP_Ping_tester
                         else if (reply.Status == IPStatus.TimedOut)
                         {
                             Application.Current.Dispatcher.BeginInvoke(() => infoTextBox.AppendText("Ping round trip time exceeded the " + timeout.ToString() + " ms\n--End--\n"));
-                            sessionPingArray = CsvHandler.UpdateCSVPingInformation(reply.Address.ToString(), reply.Buffer.Length, reply.RoundtripTime.ToString(), false, sessionPingArray);
+                            Application.Current.Dispatcher.BeginInvoke(() => infoTextBox.Focus());
+                            Application.Current.Dispatcher.BeginInvoke(() => infoTextBox.CaretIndex = infoTextBox.Text.Length);
+                            Application.Current.Dispatcher.BeginInvoke(() => infoTextBox.ScrollToEnd());
+                            sessionPingArray = CsvHandler.UpdateCSVPingInformation(totalPingLogsFileLocation, PingLogsFileLocation, reply.Address.ToString(), reply.Buffer.Length, reply.RoundtripTime.ToString(), false, sessionPingArray);
                             if (sessionPingArray[4] == 0 && sessionPingArray[5] == 1)
                             {
                                 Application.Current.Dispatcher.BeginInvoke(() => currentStateOfConnectionTextBox.Background = Brushes.OrangeRed);
@@ -244,7 +270,7 @@ namespace ISP_Ping_tester
                             MessageBox.Show("Broken");
                         }
 
-                        Thread.Sleep(1000);
+                        Thread.Sleep(2000);
                     }
                     catch (System.Net.NetworkInformation.PingException)
                     {
@@ -273,6 +299,11 @@ namespace ISP_Ping_tester
 
         private void close_Click(object sender, RoutedEventArgs e)
         {
+            //Vars:
+            string[] pingFilesArray = new string[2];
+            pingFilesArray = PingFilesNamesWithTime();
+            string totalPingLogsFileLocation = pingFilesArray[0];
+
             startStop = false;
 
             //Go through all of the individual states in the array and get the modulo
@@ -293,6 +324,26 @@ namespace ISP_Ping_tester
             {
                 this.DragMove();
             }
+        }
+
+        private static string[] PingFilesNamesWithTime()
+        {
+            string[] pingFilesAddressWithTime = new string[2];
+            char[] todayDelimiters = ['/', ' '];
+            string[] todayArray = new string[4];
+            string today = DateTime.Now.Date.ToString();
+            todayArray = today.Split(todayDelimiters);
+            today = todayArray[0] + "_" + todayArray[1] + "_" + todayArray[2];
+
+            //string totalPingLogsFileLocation = @"C:\Users\Tracks\source\repos\ISP_Ping_tester\TotalPingLogs_" + today + ".csv";
+            string totalPingLogsFileLocation = @"C:\Users\Michael_C\source\repos\C#\VS 2022\ISP_Ping_tester\TotalPingLogs_" + today + ".csv";
+            //string PingLogsFileLocation = @"C:\Users\Tracks\source\repos\ISP_Ping_tester\PingLogs_" + today + ".csv";
+            string PingLogsFileLocation = @"C:\Users\Michael_C\source\repos\C#\VS 2022\ISP_Ping_tester\PingLogs_" + today + ".csv";
+
+            pingFilesAddressWithTime[0] = totalPingLogsFileLocation;
+            pingFilesAddressWithTime[1] = PingLogsFileLocation;
+
+            return pingFilesAddressWithTime;
         }
     }
 }
