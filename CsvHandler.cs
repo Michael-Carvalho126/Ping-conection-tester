@@ -16,7 +16,7 @@ namespace ISP_Ping_tester
 {
     class CsvHandler
     {
-        public static int[] UpdateCSVPingInformation(string totalPingLogsFileLocation, string PingLogsFileLocation, string IpAddress, int packetSize, string roundTripTime, bool successfulPing, int[] sessionPingArray)
+        public static int[] UpdateCSVPingInformation(string totalPingLogsFileLocation, string PingLogsFileLocation, string IpAddress, int packetSize, string roundTripTime, bool successfulPing, int[] sessionPingArray,bool timeout)
         {
             //sessionPingArray [0] == Sucessful [1] == Failed
             //Vars:
@@ -64,14 +64,14 @@ namespace ISP_Ping_tester
                     UpdateTotalPingLogsFile(totalPingLogsFileLocation, 0, 20);
 
                     // Update the PingLogs csv file with 1 more log.
-                    CsvHandler.UpdatePingLogsFile(PingLogsFileLocation, IpAddress, packetSize, roundTripTime, successfulPing);
+                    CsvHandler.UpdatePingLogsFile(PingLogsFileLocation, IpAddress, packetSize, roundTripTime, successfulPing, timeout);
 
                     sessionPingArray[0] = 0;
                     
                 }
                 else if (sessionPingArray[0] < 20)
                 {
-                    CsvHandler.UpdatePingLogsFile(PingLogsFileLocation, IpAddress, packetSize, roundTripTime, successfulPing);
+                    CsvHandler.UpdatePingLogsFile(PingLogsFileLocation, IpAddress, packetSize, roundTripTime, successfulPing, timeout);
                 }
                 sessionPingArray[3] = 0; // Bool for successive pings
                 sessionPingArray[4] = 0;
@@ -88,7 +88,7 @@ namespace ISP_Ping_tester
                     UpdateTotalPingLogsFile(totalPingLogsFileLocation, 1, 5);
 
                     // Update the PingLogs csv file with 1 more log.
-                    CsvHandler.UpdatePingLogsFile(PingLogsFileLocation, IpAddress, packetSize, roundTripTime, successfulPing);
+                    CsvHandler.UpdatePingLogsFile(PingLogsFileLocation, IpAddress, packetSize, roundTripTime, successfulPing,timeout);
 
                     sessionPingArray[1] = 0;
                 }
@@ -96,7 +96,7 @@ namespace ISP_Ping_tester
                 {
                     roundTripTime = "N/A";
 
-                    CsvHandler.UpdatePingLogsFile(PingLogsFileLocation, IpAddress, packetSize, roundTripTime, successfulPing);
+                    CsvHandler.UpdatePingLogsFile(PingLogsFileLocation, IpAddress, packetSize, roundTripTime, successfulPing, timeout);
                 }
                 sessionPingArray[3] = 1; // Bool for successive pings
                 sessionPingArray[4] = 0;
@@ -115,7 +115,7 @@ namespace ISP_Ping_tester
                     sessionPingArray[2] = 0;
                 }
 
-                UpdatePingLogsFile(PingLogsFileLocation,IpAddress, packetSize, roundTripTime, successfulPing);
+                UpdatePingLogsFile(PingLogsFileLocation,IpAddress, packetSize, roundTripTime, successfulPing, timeout);
                 sessionPingArray[4] = 1;
                 sessionPingArray[5] = 1;
             }
@@ -123,14 +123,15 @@ namespace ISP_Ping_tester
                 return sessionPingArray;
         }
 
-        public static void UpdatePingLogsFile(string PingLogsFileLocation ,string IpAddress,int packetSize, string roundTripTime, bool successfulPing)
+        public static void UpdatePingLogsFile(string PingLogsFileLocation ,string IpAddress,int packetSize, string roundTripTime, bool successfulPing, bool timeout)
         {
             //Vars:
             DateTime dateTime = DateTime.Now;
-            //string PingLogsFileLocation = @"C:\Users\Tracks\source\repos\ISP_Ping_tester\PingLogs.csv";
-            string updateLineText = dateTime.ToString() + " , " + "IP: " + IpAddress + " , " + "Packet size: " + packetSize.ToString() + " , " + "Round trip time: " + roundTripTime + " , " + "Successful ping: " + successfulPing.ToString() + "\r\n";
 
-            File.AppendAllText(PingLogsFileLocation, updateLineText);
+            string updateLineText = dateTime.ToString() + " , " + "IP: " + IpAddress + " , " + "Packet size: " + packetSize.ToString() + " , " + "Round trip time: " + roundTripTime + " , " + "Successful ping: " + successfulPing.ToString() + " Timeout: " + timeout.ToString() + "\r\n";
+            
+
+                File.AppendAllText(PingLogsFileLocation, updateLineText);
         }
 
         public static void UpdateTotalPingLogsFile(string totalPingLogsFileLocation, int lineToEdit, int pingCount)
