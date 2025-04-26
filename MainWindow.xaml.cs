@@ -245,7 +245,7 @@ namespace ISP_Ping_tester
                                 Application.Current.Dispatcher.BeginInvoke(() => currentStateOfConnectionTextBox.Background = Brushes.Red);
                             }
                             //Ping router after failed ping to Google:
-                            Thread.Sleep(400);
+                            //Thread.Sleep(400);
                             reply = pingSender.Send(routerIpAddress, timeout, buffer, options);
                             if (reply.Status == IPStatus.Success)
                             {
@@ -312,7 +312,7 @@ namespace ISP_Ping_tester
                                 Application.Current.Dispatcher.BeginInvoke(() => currentStateOfConnectionTextBox.Background = Brushes.Red);
                             }
                             //Ping router after failed ping to Google:
-                            Thread.Sleep(400);
+                            //Thread.Sleep(400);
                             reply = pingSender.Send(routerIpAddress, timeout, buffer, options);
                             if (reply.Status == IPStatus.Success)
                             {
@@ -435,9 +435,11 @@ namespace ISP_Ping_tester
             today = todayArray[0] + "_" + todayArray[1] + "_" + todayArray[2];
 
             //string totalPingLogsFileLocation = @"C:\Users\Tracks\source\repos\ISP_Ping_tester\TotalPingLogs_" + today + ".csv";
-            string totalPingLogsFileLocation = @"C:\Users\Michael_C\source\repos\C#\VS 2022\ISP_Ping_tester\TotalPingLogs_" + today + ".csv";
+            //string totalPingLogsFileLocation = @"C:\Users\Michael_C\source\repos\C#\VS 2022\ISP_Ping_tester\TotalPingLogs_" + today + ".csv";
             //string PingLogsFileLocation = @"C:\Users\Tracks\source\repos\ISP_Ping_tester\PingLogs_" + today + ".csv";
-            string PingLogsFileLocation = @"C:\Users\Michael_C\source\repos\C#\VS 2022\ISP_Ping_tester\PingLogs_" + today + ".csv";
+            //string PingLogsFileLocation = @"C:\Users\Michael_C\source\repos\C#\VS 2022\ISP_Ping_tester\PingLogs_" + today + ".csv";
+            string totalPingLogsFileLocation = Directory.GetCurrentDirectory();
+            string PingLogsFileLocation = Directory.GetCurrentDirectory();
 
             pingFilesAddressWithTime[0] = totalPingLogsFileLocation;
             pingFilesAddressWithTime[1] = PingLogsFileLocation;
