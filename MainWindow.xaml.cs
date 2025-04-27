@@ -438,8 +438,8 @@ namespace ISP_Ping_tester
             //string totalPingLogsFileLocation = @"C:\Users\Michael_C\source\repos\C#\VS 2022\ISP_Ping_tester\TotalPingLogs_" + today + ".csv";
             //string PingLogsFileLocation = @"C:\Users\Tracks\source\repos\ISP_Ping_tester\PingLogs_" + today + ".csv";
             //string PingLogsFileLocation = @"C:\Users\Michael_C\source\repos\C#\VS 2022\ISP_Ping_tester\PingLogs_" + today + ".csv";
-            string totalPingLogsFileLocation = Directory.GetCurrentDirectory();
-            string PingLogsFileLocation = Directory.GetCurrentDirectory();
+            string totalPingLogsFileLocation = Directory.GetCurrentDirectory() + @"\TotalPingLogs_" + today + ".csv";
+            string PingLogsFileLocation = Directory.GetCurrentDirectory() + @"\PingLogs_" + today + ".csv";
 
             pingFilesAddressWithTime[0] = totalPingLogsFileLocation;
             pingFilesAddressWithTime[1] = PingLogsFileLocation;

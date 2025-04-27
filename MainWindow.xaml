@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:ISP_Ping_tester"
         mc:Ignorable="d"
-        Title="ISP ping test program"
+        Title="ISP ping test program V1"
         Height="480" Width="780"
         Background="Transparent"
         WindowStartupLocation="CenterScreen"
